@@ -1,27 +1,61 @@
 'use strict';
-const userModel = require('../models/userModel');
+const {getAllUsers, getUser, addUser} = require('../models/userModel');
+const { httpError } = require('../utils/errors');
 
-// const cats = catModel.cats;
-const {users, getUser} = userModel;
+const user_list_get = async (req, res, next) => {
+    try {
+        const users = await getAllUsers(next);
+        if (users.length > 0) {
+          res.json(users);
+        } else {
+          next(httpError('No users found', 404));
+        }
+        
+      } catch (e) {
+        console.log('user_list_get error', e.message);
+        next(httpError('internal server error', 500));
+      }
 
-const user_list_get = (req, res) => {
-   const newusers = users.map((user) => {
-        delete user.password;
-        return user;
-    });
-    res.json(newusers);
+
 };
 
-const user_get = (req, res) =>  {
-    //TODO lähetä yksi kissa
-    const vastaus = getUser(req.params.id);
-    delete vastaus.password;
-    res.json(vastaus);
+const user_get = async (req, res, next) =>  {
+    try {      
+      const vastaus = await getUser(req.params.id, next);
+      if (vastaus.length > 0 ) {
+        
+        res.json(vastaus.pop());
+      } else {
+        next(httpError('No user found', 404));
+      }
+      
+    } catch (e){
+      console.log('user_get error', e.message);
+      next(httpError('No user found', 500));
+    }
+
 }
 
-const user_post = (req, res) => {
-    console.log(req.body);
-    res.send('From this endpoint you can add users');
+const user_post = async (req, res, next) => {
+    try {
+        console.log('user_post', req.body);
+        const {name, email, passwd} = req.body;
+        const tulos = await addUser(name, email, passwd, next);
+        
+        if (tulos.affectedRows > 0) {
+            res.json({
+                message: "user added",
+                user_id: tulos.insertId,
+            });
+        } else {
+            next(httpError('No user inserted', 400));
+        }
+        
+    } catch (e) {
+        console.log('user_post error', e.message);
+        next(httpError('Database error', 500));
+    }
+    
 };
 
 module.exports = {

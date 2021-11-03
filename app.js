@@ -24,7 +24,7 @@ app.use((err, req, res, next) => {
                                     {
                                         error: 
                                             {
-                                                message: err.message || 'internar server error', 
+                                                message: err.message || 'internal server error', 
                                                 status: err.status || 500
                                             }
                                     });
