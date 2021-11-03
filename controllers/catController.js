@@ -2,15 +2,20 @@
 const catModel = require('../models/catModel');
 
 // const cats = catModel.cats;
-const {cats, getCat} = catModel;
+const {getAllCats, getCat} = catModel;
 
-const cat_list_get = (req, res) => {
-  res.json(cats);
+const cat_list_get = async (req, res) => {
+  try {
+    res.json(await getAllCats());
+  } catch (e) {
+    console.log('cat_list_get error', e.message);
+  }
+  
 };
 
-const cat_get = (req, res) =>  {
+const cat_get = async (req, res) =>  {
     //TODO lähetä yksi kissa
-    const vastaus = getCat(req.params.id);
+    const vastaus = await getCat(req.params.id);
     res.json(vastaus);
 }
 
