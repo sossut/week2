@@ -58,6 +58,7 @@ const deleteCat = async (id, next) => {
   console.log(id);
   try {
     const [rows] = await promisePool.execute('DELETE FROM wop_cat WHERE cat_id = ?', [id]);
+    return rows;
   } catch (e) {
     console.error('deleteCat error', e.message);
     next(httpError('Database error', 500));

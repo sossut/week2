@@ -93,10 +93,11 @@ const cat_delete = async (req, res, next) => {
   
   try {
     const vastaus = await deleteCat(req.params.id, next);
-    if (tulos.affectedRows > 0) {
+    console.log(vastaus);
+    if (vastaus.affectedRows > 0) {
       res.json({
           message: "cat deleted",
-          cat_id: tulos.insertId,
+          cat_id: vastaus.insertId,
       });
     } else {
         next(httpError('No cat deleted', 400));
