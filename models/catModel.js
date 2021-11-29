@@ -13,7 +13,8 @@ const getAllCats = async (next) => {
 	weight, 
 	owner, 
 	filename,
-	birthdate, 
+	birthdate,
+	coords, 
 	wop_user.name as ownername 
 	FROM wop_cat 
 	JOIN wop_user ON 
@@ -36,6 +37,7 @@ const getCat = async (id, next) => {
 	  owner, 
 	  filename,
 	  birthdate, 
+	  coords,
 	  wop_user.name as ownername 
 	  FROM wop_cat 
 	  JOIN wop_user ON 
@@ -50,11 +52,19 @@ const getCat = async (id, next) => {
   }
 };
 
-const addCat = async (name, weight, owner, birthdate, filename, next) => {
+const addCat = async (
+  name,
+  weight,
+  owner,
+  birthdate,
+  filename,
+  coords,
+  next
+) => {
   try {
     const [rows] = await promisePool.execute(
-      'INSERT INTO wop_cat (name, weight, owner, filename, birthdate) VALUES (?, ?, ?, ?, ?)',
-      [name, weight, owner, filename, birthdate]
+      'INSERT INTO wop_cat (name, weight, owner, filename, birthdate, coords) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, weight, owner, filename, birthdate, coords]
     );
     return rows;
   } catch (e) {
@@ -63,18 +73,26 @@ const addCat = async (name, weight, owner, birthdate, filename, next) => {
   }
 };
 
-const modifyCat = async (name, weight, owner, birthdate, cat_id, role, next) => {
-  let sql = 'UPDATE wop_cat SET name = ?, weight = ?, birthdate = ? WHERE cat_id = ? AND owner = ?;';
+const modifyCat = async (
+  name,
+  weight,
+  owner,
+  birthdate,
+  cat_id,
+  role,
+  next
+) => {
+  let sql =
+    'UPDATE wop_cat SET name = ?, weight = ?, birthdate = ? WHERE cat_id = ? AND owner = ?;';
   let params = [name, weight, birthdate, cat_id, owner];
   if (role === 0) {
-    sql = 'UPDATE wop_cat SET name = ?, weight = ?, birthdate = ?, owner = ? WHERE cat_id = ?';
+    sql =
+      'UPDATE wop_cat SET name = ?, weight = ?, birthdate = ?, owner = ? WHERE cat_id = ?;';
     params = [name, weight, birthdate, owner, cat_id];
   }
+  console.log('sql', sql);
   try {
-    const [rows] = await promisePool.execute(
-      sql,
-      params
-    );
+    const [rows] = await promisePool.execute(sql, params);
     return rows;
   } catch (e) {
     console.error('addCat error', e.message);
@@ -90,9 +108,7 @@ const deleteCat = async (id, owner_id, role, next) => {
     params = [id];
   }
   try {
-    const [rows] = await promisePool.execute(
-    sql, params
-    );
+    const [rows] = await promisePool.execute(sql, params);
     return rows;
   } catch (e) {
     console.error('getCat error', e.message);
